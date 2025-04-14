@@ -1,5 +1,12 @@
+import { Href } from "expo-router";
+import { Firestore, Timestamp } from "firebase/firestore";
+import { Icon } from "phosphor-react-native";
 import React, { ReactNode } from "react";
 import {
+  ActivityIndicator,
+  ActivityIndicatorProps,
+  ImageStyle,
+  PressableProps,
   TextInput,
   TextInputProps,
   TextProps,
@@ -7,22 +14,17 @@ import {
   TouchableOpacityProps,
   ViewStyle,
 } from "react-native";
-import { Firestore, Timestamp } from "firebase/firestore";
-import { Icon } from "phosphor-react-native";
 
 export type ScreenWrapperProps = {
   style?: ViewStyle;
   children: React.ReactNode;
-  bg?: string;
 };
-
 export type ModalWrapperProps = {
   style?: ViewStyle;
   children: React.ReactNode;
   bg?: string;
 };
-
-export type AccountOptionType = {
+export type accountOptionType = {
   title: string;
   icon: React.ReactNode;
   bgColor: string;
@@ -84,7 +86,6 @@ export type CategoryType = {
   icon: Icon;
   bgColor: string;
 };
-
 export type ExpenseCategoriesType = {
   [key: string]: CategoryType;
 };
@@ -114,10 +115,18 @@ export interface InputProps extends TextInputProps {
 export interface CustomButtonProps extends TouchableOpacityProps {
   style?: ViewStyle;
   onPress?: () => void;
+  loading?: boolean;
+  children: React.ReactNode;
+}
+
+export type ImageUploadProps = {
+  file?: any;
+  onSelect: (file: any) => void;
+  onClear: () => void;
   containerStyle?: ViewStyle;
   imageStyle?: ViewStyle;
   placeholder?: string;
-}
+};
 
 export type UserType = {
   uid?: string;
@@ -136,8 +145,7 @@ export type AuthContextType = {
   setUser: Function;
   login: (
     email: string,
-    password: string,
-    name: string
+    password: string
   ) => Promise<{ success: boolean; msg?: string }>;
   register: (
     email: string,
@@ -147,7 +155,7 @@ export type AuthContextType = {
   updateUserData: (userId: string) => Promise<void>;
 };
 
-export type Response = {
+export type ResponseType = {
   success: boolean;
   data?: any;
   msg?: string;
