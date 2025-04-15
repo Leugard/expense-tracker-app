@@ -33,7 +33,10 @@ import { orderBy, where } from "firebase/firestore";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import { createOrUpdateTransaction } from "@/services/transactionService";
+import {
+  createOrUpdateTransaction,
+  deleteTransaction,
+} from "@/services/transactionService";
 
 const TransactionModal = () => {
   const { user } = useAuth();
@@ -50,6 +53,15 @@ const TransactionModal = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const router = useRouter();
 
+  const formatToIdr = (amount: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   const {
     data: wallets,
     error: walletError,
@@ -59,8 +71,19 @@ const TransactionModal = () => {
     orderBy("created", "desc"),
   ]);
 
-  const oldTransaction: { name: string; image: string; id: string } =
-    useLocalSearchParams();
+  type paramType = {
+    id: string;
+    type: string;
+    amount: string;
+    category?: string;
+    date: string;
+    description?: string;
+    image?: any;
+    uid?: string;
+    walletId: string;
+  };
+
+  const oldTransaction: paramType = useLocalSearchParams();
 
   const onDateChange = (event: any, selectedDate: any) => {
     const currentDate = selectedDate || transaction.date;
@@ -68,14 +91,19 @@ const TransactionModal = () => {
     setShowDatePicker(false);
   };
 
-  // useEffect(() => {
-  //   if (oldTransaction?.id) {
-  //     setTransaction({
-  //       name: oldTransaction?.name,
-  //       image: oldTransaction?.image,
-  //     });
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (oldTransaction?.id) {
+      setTransaction({
+        type: oldTransaction?.type,
+        amount: Number(oldTransaction.amount),
+        description: oldTransaction.description || "",
+        category: oldTransaction.category || "",
+        date: new Date(oldTransaction.date),
+        walletId: oldTransaction.walletId,
+        image: oldTransaction?.image,
+      });
+    }
+  }, []);
 
   const onSubmit = async () => {
     const { type, amount, description, category, date, walletId, image } =
@@ -97,6 +125,7 @@ const TransactionModal = () => {
       uid: user?.uid,
     };
 
+    if (oldTransaction?.id) transactionData.id = oldTransaction.id;
     setLoading(true);
     const res = await createOrUpdateTransaction(transactionData);
 
@@ -111,7 +140,10 @@ const TransactionModal = () => {
   const onDelete = async () => {
     if (!oldTransaction?.id) return;
     setLoading(true);
-    const res = await deleteWallet(oldTransaction?.id);
+    const res = await deleteTransaction(
+      oldTransaction?.id,
+      oldTransaction.walletId
+    );
     setLoading(false);
     if (res.success) {
       router.back();
@@ -123,7 +155,7 @@ const TransactionModal = () => {
   const showDeleteAlert = () => {
     Alert.alert(
       "Confirm",
-      "Are you sure you want to do this? \nThis action will remove all the transactions related to this wallet",
+      "Are you sure you want to delete this transactions?",
       [
         {
           text: "Cancel",
@@ -187,7 +219,7 @@ const TransactionModal = () => {
               selectedTextStyle={styles.dropdownSelectedText}
               iconStyle={styles.dropdownIcon}
               data={wallets.map((wallet) => ({
-                label: `${wallet?.name} (Rp.${wallet.amount})`,
+                label: `${wallet?.name} (${formatToIdr(wallet.amount ?? 0)})`,
                 value: wallet?.id,
               }))}
               maxHeight={300}
@@ -268,7 +300,6 @@ const TransactionModal = () => {
               Amount
             </Typo>
             <Input
-              // placeholder="Salary"
               keyboardType="numeric"
               value={transaction.amount?.toString()}
               onChangeText={(value) =>
@@ -331,7 +362,7 @@ const TransactionModal = () => {
       </View>
 
       <View style={styles.footer}>
-        {oldTransaction?.id && (
+        {oldTransaction?.id && !loading && (
           <Button
             onPress={showDeleteAlert}
             style={{

@@ -31,6 +31,16 @@ const Wallet = () => {
     where("uid", "==", user?.uid),
     orderBy("created", "desc"),
   ]);
+
+  const formatToIdr = (amount: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   const getTotalBalance = () =>
     wallets.reduce((total, item) => {
       total = total + (item.amount || 0);
@@ -43,7 +53,7 @@ const Wallet = () => {
         <View style={styles.balanceView}>
           <View style={{ alignItems: "center" }}>
             <Typo size={45} fontWeight={"500"}>
-              Rp.{getTotalBalance()?.toFixed(2)}
+              {formatToIdr(getTotalBalance())}
             </Typo>
             <Typo size={16} color={colors.neutral300}>
               Total Balance
@@ -72,7 +82,12 @@ const Wallet = () => {
             data={wallets}
             renderItem={({ item, index }) => {
               return (
-                <WalletListItem item={item} index={index} router={router} />
+                <WalletListItem
+                  item={item}
+                  index={index}
+                  router={router}
+                  formatToIdr={formatToIdr}
+                />
               );
             }}
             contentContainerStyle={styles.listStyle}

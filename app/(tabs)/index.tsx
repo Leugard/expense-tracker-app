@@ -26,6 +26,15 @@ const Home = () => {
   const { user } = useAuth();
   const router = useRouter();
 
+  const formatToIdr = (amount: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   const constraints = [
     where("uid", "==", user?.uid),
     orderBy("date", "desc"),
@@ -64,7 +73,7 @@ const Home = () => {
           showsVerticalScrollIndicator={false}
         >
           <View>
-            <HomeCard />
+            <HomeCard formatToIdr={formatToIdr} />
           </View>
 
           <TransactionList

@@ -13,10 +13,12 @@ const WalletListItem = ({
   item,
   index,
   router,
+  formatToIdr,
 }: {
   item: WalletType;
   index: number;
   router: Router;
+  formatToIdr: any;
 }) => {
   const openWallet = () => {
     router.push({
@@ -47,7 +49,7 @@ const WalletListItem = ({
         <View style={styles.nameContainer}>
           <Typo size={16}>{item?.name}</Typo>
           <Typo size={14} color={colors.neutral400}>
-            Rp.{item?.amount}
+            {formatToIdr(item?.amount)}
           </Typo>
         </View>
 

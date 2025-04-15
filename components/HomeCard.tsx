@@ -10,7 +10,7 @@ import useFetchData from "@/hooks/useFetchData";
 import { orderBy, where } from "firebase/firestore";
 import { WalletType } from "@/types";
 
-const HomeCard = () => {
+const HomeCard = ({ formatToIdr }: { formatToIdr: any }) => {
   const { user } = useAuth();
 
   const {
@@ -57,7 +57,7 @@ const HomeCard = () => {
             />
           </View>
           <Typo color={colors.black} size={30} fontWeight={"bold"}>
-            Rp.{walletLoading ? "----" : getTotals()?.balance?.toFixed(2)}
+            {walletLoading ? "----" : formatToIdr(getTotals()?.balance)}
           </Typo>
         </View>
         <View style={styles.stats}>
@@ -76,7 +76,7 @@ const HomeCard = () => {
             </View>
             <View style={{ alignSelf: "center" }}>
               <Typo size={17} color={colors.green} fontWeight={"600"}>
-                Rp.{walletLoading ? "----" : getTotals()?.income?.toFixed(2)}
+                {walletLoading ? "----" : formatToIdr(getTotals()?.income)}
               </Typo>
             </View>
           </View>
@@ -96,7 +96,7 @@ const HomeCard = () => {
             </View>
             <View style={{ alignSelf: "center" }}>
               <Typo size={17} color={colors.rose} fontWeight={"600"}>
-                Rp.{walletLoading ? "----" : getTotals()?.expenses?.toFixed(2)}
+                {walletLoading ? "----" : formatToIdr(getTotals()?.expenses)}
               </Typo>
             </View>
           </View>
